@@ -68,9 +68,10 @@ static uint64_t esp32_timg_read(void *opaque, hwaddr addr, unsigned int size)
         ts = &s->t0;
     } else if (addr <= A_TIMG_T1LOAD) {
         ts = &s->t1;
-    } else if (addr >= A_TIMG_LACTCONFIG && addr < A_TIMG_LACTLOAD) {
+    } else if (addr >= A_TIMG_LACTCONFIG && addr <= A_TIMG_LACTLOAD) {
         ts = &s->lact;
     }
+
     uint64_t r = 0;
     switch (addr) {
     case A_TIMG_T0CONFIG:
@@ -159,7 +160,7 @@ static void esp32_timg_write(void *opaque, hwaddr addr,
         ts = &s->t0;
     } else if (addr <= A_TIMG_T1LOAD) {
         ts = &s->t1;
-    } else if (addr >= A_TIMG_LACTCONFIG && addr < A_TIMG_LACTLOAD) {
+    } else if (addr >= A_TIMG_LACTCONFIG && addr <= A_TIMG_LACTLOAD) {
         ts = &s->lact;
     }
 

@@ -54,8 +54,8 @@ typedef struct XtensaCPU XtensaCPU;
 /**
  * Start and end of instrumentation address range
  */
-const target_ulong hfuzz_qemu_start_code = 0x400C2000;
-const target_ulong hfuzz_qemu_end_code = 0x40BFFFFF;
+const target_ulong hfuzz_qemu_start_code =	0x400d68c0;
+const target_ulong hfuzz_qemu_end_code =	0x400d69b0;
 
 /**
  * Flag wheater process is a child process.
@@ -933,7 +933,7 @@ __attribute__((unused)) static void esp_wifi_write(void *opaque, hwaddr addr,
         //     gdb_serial[0]->gdb_serial_data[gdb_serial[0]->gdb_serial_buff_tx%MAX_GDB_BUFF]=(char)val;
         //     gdb_serial[0]->gdb_serial_buff_tx++;
         // }
-        fprintf(stdout,"ZZZ %ld",val);
+        fprintf(stdout,"%c",(unsigned char)val);
         //uint8_t buf[1] = { val };
         //qemu_chr_fe_write(silly_serial, buf, 1);
 

@@ -50,7 +50,7 @@ Needs all prerequisites for honggfuzz, qemu and esp-idf!
 The coverage data can be very noisy, because the coverage of the whole system is respected. To isolate the coverage of specific functions, the first have to be roughly located within the address space for example by executing:
 <code> readelf ./example_esp32_server/build/tcp_server.elf -s | grep processData </code>
 
-The address space, that should be considered can be limited by changing the variables **hfuzz_qemu_start_code** and **hfuzz_qemu_start_code** in the file <code> ./qemu/hw/xtensa/esp32.c </code>
+The address space, that should be considered can be limited by changing the variables **hfuzz_qemu_start_code** and **hfuzz_qemu_end_code** in the file <code> ./qemu/hw/xtensa/esp32.c </code>
 For the example application, setting the considered address space to 0x400d5000 - 0x400d5f00 speeds up the fuzzing process incredibly. A fault should then be found within minutes. 
 
 # Blackbox Fuzzing within QEMU 

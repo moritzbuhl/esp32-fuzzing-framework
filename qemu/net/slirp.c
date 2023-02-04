@@ -743,10 +743,26 @@ static int slirp_hostfwd(SlirpState *s, const char *redir_str, Error **errp)
         fail_reason = "Bad host port separator";
         goto fail_syntax;
     }
-    host_port = strtol(buf, &end, 0);
-    if (*end != '\0' || host_port < 0 || host_port > 65535) {
-        fail_reason = "Bad host port";
-        goto fail_syntax;
+
+    if (buf[0] == '?') {
+        // WHY is there not stupid function to give me a few random bytes in 2022 in linux
+        struct timeval t;
+        gettimeofday(&t, NULL);
+        srand(t.tv_usec * t.tv_sec);
+        host_port = rand();
+        if (host_port < 0) {
+            host_port = -host_port;
+        }
+        host_port %= 65535 - 49152;
+        host_port += 49152;
+        extern int TARGET_PORT;
+        TARGET_PORT = host_port;
+    } else {
+        host_port = strtol(buf, &end, 0);
+        if (*end != '\0' || host_port < 0 || host_port > 65535) {
+            fail_reason = "Bad host port";
+            goto fail_syntax;
+        }
     }
 
     if (get_str_sep(buf, sizeof(buf), &p, ':') < 0) {

@@ -51,7 +51,7 @@ extern void hfuzz_trace_strcmp(uint64_t callee, uint64_t calleeCallee, uint8_t *
 
 
 static inline void hfuzz_qemu_trace_pc(target_ulong pc) {
-  //static __thread target_ulong prev_loc = 0;
+  //static __thread target_ulong prev_loc;
   if (pc > hfuzz_qemu_end_code || pc < hfuzz_qemu_start_code) {
     return;
   }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 arg_projname=$1
 arg_flashimg=$2
 

@@ -148,6 +148,11 @@ static bool inExitPoints(target_ulong pc) {
 }
 static void setup_fuzzing_entrypoint(CPUState *cpu) {
 
+    if (hfuzz_dump_file == NULL) {
+        printf("skipping setup, no state given\n");
+        return;
+    }
+
     CPUArchState *env = cpu->env_ptr;
     env->pc = hfuzz_qemu_entry_point;
     // env->regs[0] = 0x800f4107;
@@ -187,10 +192,19 @@ static void setup_fuzzing_entrypoint(CPUState *cpu) {
 
     //memory dump: -exec dump binary memory dump.bin 0x3FF80000 0x3FFFFFFF
     int fd = open(hfuzz_dump_file, O_RDONLY | O_BINARY);
+    if (fd == -1) {
+        fprintf(stderr, "open(%s) failed.\n", hfuzz_dump_file);
+        exit(1);
+    }
 
     size_t dump_size = lseek(fd, 0, SEEK_END);
 
     uint8_t *buf = malloc(dump_size);
+    if (buf == NULL) {
+        fprintf(stderr, "malloc(%ld) failed.\n", dump_size);
+        exit(1);
+    }
+
     lseek(fd, 0, SEEK_SET);
 
     int rc = read(fd, buf, dump_size);
@@ -207,6 +221,10 @@ static void setup_fuzzing_entrypoint(CPUState *cpu) {
 
     //printf("reg file: %s", hfuzz_regs_file);
     FILE *fp = fopen(hfuzz_regs_file, "r" );
+    if (fp == NULL) {
+        fprintf(stderr, "fopen(%s) failed.\n", hfuzz_regs_file);
+        exit(1);
+    }
 
     while (fgets(reg_line, sizeof(reg_line), fp)) {
 
@@ -219,7 +237,6 @@ static void setup_fuzzing_entrypoint(CPUState *cpu) {
         env->regs[reg] = val;
 
     }
-
 
     fclose(fp);
 
@@ -357,6 +374,7 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
     if (inExitPoints(env->pc) )  {
 
         if(childProcess) {
+	    /* XXX: why exit() and not just reset the vm? */
             printf("exit\n");
             exit(0);
         } else { //rerun from entrypoint

@@ -21,12 +21,14 @@
 /**
  * Point at which the memory and register dump should be loaded
 */
-target_ulong hfuzz_qemu_setup_point = 0x40000450; 
+target_ulong hfuzz_qemu_setup_point = 0x40000450;
+/* 0x4010201c; main_task */
 
 /**
  * Point, where the memory dump was taken
  */
-target_ulong hfuzz_qemu_entry_point = 0; 
+/* MIGHT HAVE ANOTHER MEANING */
+target_ulong hfuzz_qemu_entry_point = 0x40102028; /* main task */ //0;//0x400d68c0;
 
 /**
  * The register which holds the length of the input data. 
@@ -60,7 +62,7 @@ extern void hfuzzInstrumentInit(void);
 
 //Whitebox fuzzing
 #define TARGET_ADDRESS "localhost"
-#define TARGET_PORT 8081
+int TARGET_PORT = 8081;
 
 /**
  * send data to target, check liveness
@@ -85,8 +87,8 @@ void sendOneRequest(const uint8_t *fuzz_string, size_t fuzz_len)
 
     //concatenate fuzzer string + http header and save to buf
     snprintf(buf, sizeof buf, "%s%s", fuzz_string, http_crlf);
-    //memcpy(buf, fuzz_string, fuzz_len * sizeof(uint8_t));
-    //memcpy(buf + fuzz_len * sizeof(uint8_t), http_crlf, (strlen(http_crlf) + 1) * sizeof(char));
+    //memcpy(buf, fuzz_string, fuzz_len);
+    //memcpy(buf + fuzz_len, http_crlf, 2);
 
     printf("Send data: \n");
     fwrite(buf, strlen(buf) + 1, 1, stdout);
@@ -151,7 +153,7 @@ void sendOneRequest(const uint8_t *fuzz_string, size_t fuzz_len)
 
     //send request
     int len = send(target_sockfd, buf, strlen(buf) + 1, 0);
-    //printf("%i \n", sent);
+    //printf("%i \n", len);
 
     if(len < 0) {
       raise(SIGSEGV); //probably fault
@@ -222,23 +224,24 @@ bool isGetRequest(CPUState *cpu) {
 void injectFuzzingData(CPUState *cpu);
 void injectFuzzingData(CPUState *cpu) {
 
-  const uint8_t *fuzz_string = (uint8_t *)"";
+  const uint8_t *fuzz_string;
   size_t fuzz_len = 0 ;
 
   HonggfuzzFetchData(&fuzz_string, &fuzz_len);
 
   char buf[BUFFER_SIZE];
 
-  if (fuzz_len > BUFFER_SIZE - strlen(http_crlf) + 1)
+  if (fuzz_len > BUFFER_SIZE - strlen(http_crlf) - 4 + 1)
   {
       printf("Fuzzer data too big!! \n");
-      fuzz_len = BUFFER_SIZE - strlen(http_crlf) + 1;
+      fuzz_len = BUFFER_SIZE - strlen(http_crlf) - 4 + 1;
   }
 
   //concatenate fuzzer string + http header and save to buf
   //use snprintf to avoid null bytes in string which would lead to timeouts
   //snprintf(buf, sizeof buf, "%s%s", fuzz_string, http_crlf);
-  memcpy(buf, fuzz_string, fuzz_len * sizeof(uint8_t));
+  memcpy(buf, "GET ", 4);
+  memcpy(buf, fuzz_string, fuzz_len);
   memcpy(buf + fuzz_len * sizeof(uint8_t), http_crlf, (strlen(http_crlf) +1) * sizeof(char));
 
   uint32_t data_len = fuzz_len * sizeof(uint8_t) + (strlen(http_crlf) +1) * sizeof(char);
@@ -251,9 +254,8 @@ void injectFuzzingData(CPUState *cpu) {
   //address_space_rw(cpu->as, 0x3FFE5400, MEMTXATTRS_UNSPECIFIED, (uint8_t *)&data_len, sizeof(uint32_t), true);
 
   ((CPUArchState *) cpu->env_ptr)->regs[hfuzz_length_register] = data_len;
-
-  
-      
+  ((CPUArchState *) cpu->env_ptr)->regs[10] = data_len;
+  ((CPUArchState *) cpu->env_ptr)->regs[15] = data_len;
 }
 
 
@@ -271,13 +273,15 @@ static void fork_server(CPUState *cpu) {
 
   //Skip first execution to profit from cache ;)
   //Maybe we can run the complete initial corpus from hfuzz to profit even more from cache?
-  if(nonForkPasses > 0 || !USE_FORKSERVER) {
+/*
+  if(nonForkPasses < 1 || !USE_FORKSERVER) {
     //We need to use fuzzing data (Or hfuzz won't recognize parts hit by original input)
     injectFuzzingData(cpu);
-    nonForkPasses --;
+    nonForkPasses++;
     return;
   } 
 
+*/
 
   while (2) {
     
@@ -314,18 +318,24 @@ static void fork_server(CPUState *cpu) {
 
 void hfuzz_qemu_setup(CPUState *cpu) {
 
+
+/*
+    printf("hfuzz_qemu_setup: hfuzz_qemu_entry_point: %d\n" , hfuzz_qemu_entry_point);
     if(hfuzz_qemu_entry_point == 0) {
+printf("white!\n");
         whitebox_fuzzing(cpu);
     } else {
         fork_server(cpu);
     }
+*/
+        whitebox_fuzzing(cpu);
 }
 
 extern void hfuzz_trace_cmp4(uintptr_t pc, uint64_t Arg1, uint64_t Arg2);
 extern void hfuzz_trace_cmp8(uintptr_t pc, uint64_t Arg1, uint64_t Arg2);
 
 void HELPER(hfuzz_qemu_trace_cmp_i64)(
-        uint64_t cur_loc, uint64_t arg1, uint64_t arg2
+	uint64_t cur_loc, uint64_t arg1, uint64_t arg2
     ) {
     if (cur_loc > hfuzz_qemu_end_code || cur_loc < hfuzz_qemu_start_code) {
         return;
@@ -335,7 +345,7 @@ void HELPER(hfuzz_qemu_trace_cmp_i64)(
 }
 
 void HELPER(hfuzz_qemu_trace_cmp_i32)(
-        uint32_t cur_loc, uint32_t arg1, uint32_t arg2
+	uint32_t cur_loc, uint32_t arg1, uint32_t arg2
     ) {
     if (cur_loc > hfuzz_qemu_end_code || cur_loc < hfuzz_qemu_start_code) {
         return;
@@ -398,31 +408,79 @@ int qemu_fuzz_option(const char *str)
     }
 
     const char * opt_setup = qemu_opt_get(opts, "setup");
+    if (opt_setup == NULL) {
+        printf("fuzzer setup missing!! \n");
+        return -1;
+    }
     hfuzz_qemu_setup_point = strtol(opt_setup, 0, 0);
+    if(errno == ERANGE) {
+        printf("parsing setup location failed\n");
+        return -1;
+    }
 
     const char * opt_entry = qemu_opt_get(opts, "entry");
+    if (opt_entry == NULL) {
+        printf("fuzzer entry missing!! \n");
+        return -1;
+    }
     hfuzz_qemu_entry_point = strtol(opt_entry, 0, 0);
+    if(errno == ERANGE) {
+        printf("parsing entry location failed\n");
+        return -1;
+    }
 
     char * opt_exit = (char *) qemu_opt_get(opts, "exit");
+    if (opt_exit == NULL) {
+        printf("fuzzer exit missing!! \n");
+        return -1;
+    }
 
     opt_exit = strtok(opt_exit, "+");
     int i;
     for (i = 0; i < MAX_EXIT_POINTS && opt_exit != NULL; i++) {
       hfuzz_qemu_exit_points[i] = strtol(opt_exit, 0, 0);
+      if(errno == ERANGE) {
+          printf("parsing exit location failed\n");
+          return -1;
+      }
       opt_exit = strtok(NULL, "+");
     }
 
     hfuzz_qemu_n_exit_points = i;
 
     const char * opt_len = qemu_opt_get(opts, "len");
+    if (opt_len == NULL) {
+        printf("fuzzer len missing!! \n");
+        return -1;
+    }
     hfuzz_length_register = strtol(opt_len + 1, 0, 0);
+    if(errno == ERANGE) {
+        printf("parsing length register number failed\n");
+        return -1;
+    }
 
     const char * opt_data = qemu_opt_get(opts, "data");
+    if (opt_data == NULL) {
+        printf("fuzzer data missing!! \n");
+        return -1;
+    }
     hfuzz_input_data_pointer = strtol(opt_data, 0, 0);
+    if(errno == ERANGE) {
+        printf("parsing data pointer failed\n");
+        return -1;
+    }
 
     hfuzz_dump_file = (char *) qemu_opt_get(opts, "dump_file");
+    if (hfuzz_dump_file == NULL) {
+        printf("fuzzer dump_file missing!! \n");
+        return -1;
+    }
 
     hfuzz_regs_file = (char *) qemu_opt_get(opts, "regs_file");
+    if (hfuzz_regs_file == NULL) {
+        printf("fuzzer regs_file missing!! \n");
+        return -1;
+    }
 
     return 0;
 }

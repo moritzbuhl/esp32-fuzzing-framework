@@ -2889,7 +2889,8 @@ int main(int argc, char **argv, char **envp)
     qemu_add_opts(&qemu_net_opts);
     qemu_add_opts(&qemu_rtc_opts);
     qemu_add_opts(&qemu_global_opts);
-    qemu_add_opts(&qemu_fuzz_opts);
+    qemu_add_opts(&qemu_blackbox_opts);
+    qemu_add_opts(&qemu_whitebox_opts);
     qemu_add_opts(&qemu_mon_opts);
     qemu_add_opts(&qemu_trace_opts);
     qemu_plugin_add_opts();
@@ -3015,8 +3016,12 @@ int main(int argc, char **argv, char **envp)
                 if (qemu_global_option(optarg) != 0)
                     exit(1);
                 break;
-            case QEMU_OPTION_fuzz:
-                if (qemu_fuzz_option(optarg) != 0)
+            case QEMU_OPTION_blackbox:
+                if (qemu_blackbox_option(optarg) != 0)
+                    exit(1);
+                break;
+            case QEMU_OPTION_whitebox:
+                if (qemu_whitebox_option(optarg) != 0)
                     exit(1);
                 break;
             case QEMU_OPTION_mtdblock:

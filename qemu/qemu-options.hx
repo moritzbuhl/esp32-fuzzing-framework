@@ -271,12 +271,14 @@ STEXI
 Set parameter @var{arg} for item @var{id} of type @var{group}
 ETEXI
 
-DEF("fuzz", HAS_ARG, QEMU_OPTION_fuzz,
+DEF("blackbox", HAS_ARG, QEMU_OPTION_blackbox,
     "setup=x,entry=x,exit=x,dump_file=x,regs_file=x", QEMU_ARCH_ALL)
 STEXI
-@item -set @var{group}.@var{id}.@var{arg}=@var{value}
-@findex -set
-Set parameter @var{arg} for item @var{id} of type @var{group}
+ETEXI
+
+DEF("whitebox", HAS_ARG, QEMU_OPTION_whitebox,
+    "setup=x,start=x,end=x", QEMU_ARCH_ALL)
+STEXI
 ETEXI
 
 DEF("global", HAS_ARG, QEMU_OPTION_global,

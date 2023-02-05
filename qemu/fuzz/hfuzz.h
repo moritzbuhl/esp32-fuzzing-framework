@@ -40,6 +40,9 @@ extern const target_ulong hfuzz_qemu_end_code;
 
 
 extern bool childProcess;
+extern int fuzz_mode;
+#define FUZZ_BLACKBOX	1
+#define FUZZ_WHITEBOX	2
 
 extern void hfuzz_qemu_setup(CPUState *cpu);
 

@@ -252,12 +252,17 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
     int tb_exit;
     uint8_t *tb_ptr = itb->tc.ptr;
 
-    if (env->pc == hfuzz_qemu_entry_point) {
+    if (env->pc == hfuzz_qemu_entry_point && fuzz_mode == FUZZ_BLACKBOX) {
         if(!childProcess) {
             qemu_mutex_lock_iothread();
             hfuzz_qemu_setup(cpu);
             qemu_mutex_unlock_iothread();
         }
+    } else if (env->pc == hfuzz_qemu_setup_point &&
+            fuzz_mode == FUZZ_WHITEBOX) {
+        qemu_mutex_lock_iothread();
+        hfuzz_qemu_setup(cpu);
+        qemu_mutex_unlock_iothread();
     }
 
     //trace pc for hfuzz
@@ -377,13 +382,13 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
 	    /* XXX: why exit() and not just reset the vm? */
             printf("exit\n");
             exit(0);
-        } else { //rerun from entrypoint
+        } else if (fuzz_mode == FUZZ_BLACKBOX) { //rerun from entrypoint
             setup_fuzzing_entrypoint(cpu);
         }
     }
     
-    if(env->pc == hfuzz_qemu_setup_point) { //main     
-        setup_fuzzing_entrypoint(cpu);
+    if(fuzz_mode == FUZZ_BLACKBOX && env->pc == hfuzz_qemu_setup_point) { //main
+	setup_fuzzing_entrypoint(cpu);
     }
 #endif //HFUZZ_FORKSERVER
 

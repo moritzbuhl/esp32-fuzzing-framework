@@ -52,12 +52,6 @@
 typedef struct XtensaCPU XtensaCPU;
 
 /**
- * Start and end of instrumentation address range
- */
-const target_ulong hfuzz_qemu_start_code =	0x400d68c0;
-const target_ulong hfuzz_qemu_end_code =	0x400d69b0;
-
-/**
  * Flag wheater process is a child process.
  */
 bool childProcess = false;

@@ -15,7 +15,8 @@
 
 #define BUFFER_SIZE 0x500
 
-
+target_ulong hfuzz_qemu_start_code;
+target_ulong hfuzz_qemu_end_code;
 
 
 /**
@@ -31,14 +32,13 @@ target_ulong hfuzz_qemu_entry_point = 0;
 /**
  * The register which holds the length of the input data. 
  */
-size_t hfuzz_length_register = 0;
+#define MAX_REGISTERS	16
+int hfuzz_length_registers[MAX_REGISTERS];
 
 /**
  * The location, where the input data is located.
  */ 
 target_ulong hfuzz_input_data_pointer = 0;
-
-
 
 #define MAX_EXIT_POINTS 10
 /**
@@ -179,7 +179,6 @@ static void whitebox_fuzzing(CPUState *cpu) {
     const uint8_t *fuzz_string = (uint8_t *)"";
     size_t fuzz_len = 0;
 
-    
     hfuzzInstrumentInit();
 
     //wait for target to come up
@@ -226,71 +225,39 @@ void injectFuzzingData(CPUState *cpu) {
   HonggfuzzFetchData(&fuzz_string, &fuzz_len);
 
   char buf[BUFFER_SIZE];
+  memset(buf, 0, BUFFER_SIZE);
 
-  if (fuzz_len > BUFFER_SIZE - strlen(http_crlf) - 4 + 1)
+  if (fuzz_len > BUFFER_SIZE - strlen(http_crlf) + 1)
   {
       printf("Fuzzer data too big!\n");
-      fuzz_len = BUFFER_SIZE - strlen(http_crlf) - 4 + 1;
+      fuzz_len = BUFFER_SIZE - strlen(http_crlf) + 1;
   }
 
-  //concatenate fuzzer string + http header and save to buf
-  //use snprintf to avoid null bytes in string which would lead to timeouts
-  //snprintf(buf, sizeof buf, "%s%s%s", "GET /", fuzz_string, http_crlf);
-  memcpy(buf, "GET /", 5);
-  memcpy(buf + 5, fuzz_string, fuzz_len);
-  memcpy(buf + + 5 + fuzz_len, http_crlf, 2);
+  memcpy(buf, fuzz_string, fuzz_len);
+  memcpy(buf + fuzz_len, http_crlf, 2);
 
-  uint32_t data_len = 5 + fuzz_len + (strlen(http_crlf) +1);
+  uint32_t data_len = fuzz_len + strlen(http_crlf) +1;
 
   uint64_t uri_pointer = hfuzz_input_data_pointer;
 
   address_space_rw(cpu->as, uri_pointer, MEMTXATTRS_UNSPECIFIED, (uint8_t *)buf, data_len, true);
 
-
-  //address_space_rw(cpu->as, 0x3FFE5400, MEMTXATTRS_UNSPECIFIED, (uint8_t *)&data_len, sizeof(uint32_t), true);
-
-  ((CPUArchState *) cpu->env_ptr)->regs[hfuzz_length_register] = data_len;
-  ((CPUArchState *) cpu->env_ptr)->regs[10] = data_len;
-  ((CPUArchState *) cpu->env_ptr)->regs[15] = data_len;
+  for (int i = 0; hfuzz_length_registers[i] >= 0; i++)
+    ((CPUArchState *) cpu->env_ptr)->regs[hfuzz_length_registers[i]] = data_len;
 }
 
 
-uint32_t nonForkPasses = 0;
-
 static void fork_server(CPUState *cpu) {
-
-  //skip if request is not a get request
-  // if(!isGetRequest(cpu))  {
-  //   return;
-  // }
-
   hfuzzInstrumentInit();
 
-
-  //Skip first execution to profit from cache ;)
-  //Maybe we can run the complete initial corpus from hfuzz to profit even more from cache?
-/*
-  if(nonForkPasses < 1 || !USE_FORKSERVER) {
-    //We need to use fuzzing data (Or hfuzz won't recognize parts hit by original input)
-    injectFuzzingData(cpu);
-    nonForkPasses++;
-    return;
-  } 
-
-*/
-
   while (1) {
-    
-    pid_t pid = fork(); //syscall(SYS_clone, CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_THREAD | CLONE_IO | CLONE_PARENT, 0); //CLONE_PTRACE
+    pid_t pid = fork();
     if (pid < 0) {
       fputs("fork error\n", stderr);
       exit(1);
     }
 
-    // Parent
     if (pid) {
-
-
       int status;
       if (waitpid(pid, &status, 0) <= 0) {
         fputs("waitpid error\n", stderr);
@@ -299,9 +266,7 @@ static void fork_server(CPUState *cpu) {
       if(status == 1 ) {
         raise(SIGSEGV);
       }
-      
     } else {
-      // Child
       childProcess = true;
       injectFuzzingData(cpu);
       return;
@@ -380,7 +345,7 @@ QemuOptsList qemu_whitebox_opts = {
     .head = QTAILQ_HEAD_INITIALIZER(qemu_whitebox_opts.head),
     .desc = {
         {
-            .name = "setup",
+            .name = "init",
             .type = QEMU_OPT_STRING,
         },{
             .name = "start",
@@ -447,15 +412,20 @@ int qemu_blackbox_option(const char *str)
         return -1;
     }
 
-    const char * opt_len = qemu_opt_get(opts, "len");
+    memset(hfuzz_length_registers, -1, MAX_REGISTERS * sizeof(int));
+    char *opt_len = (char *)qemu_opt_get(opts, "len");
     if (opt_len == NULL) {
         printf("fuzzer len missing!\n");
         return -1;
     }
-    hfuzz_length_register = strtol(opt_len + 1, 0, 0);
-    if(errno == ERANGE) {
-        printf("parsing length register number failed\n");
-        return -1;
+    opt_len = strtok(opt_len, "+");
+    for (i = 0; i < MAX_REGISTERS && opt_len != NULL; i++) {
+      hfuzz_length_registers[i] = strtol(opt_len + 1, 0, 0);
+      if(errno == ERANGE) {
+          printf("parsing length register number failed\n");
+          return -1;
+      }
+      opt_len = strtok(NULL, "+");
     }
 
     const char * opt_data = qemu_opt_get(opts, "data");
@@ -489,53 +459,43 @@ int qemu_blackbox_option(const char *str)
 int qemu_whitebox_option(const char *str)
 {
     QemuOpts *opts;
+    const char *opt_start, *opt_end;
 
     opts = qemu_opts_parse_noisily(&qemu_whitebox_opts, str, false);
     if (!opts) {
         return -1;
     }
-    const char * opt_setup = qemu_opt_get(opts, "setup");
-    if (opt_setup == NULL) {
-        printf("fuzzer setup missing!\n");
+
+    const char * opt_init = qemu_opt_get(opts, "init");
+    if (opt_init == NULL) {
+        printf("fuzzer init missing!\n");
         return -1;
     }
-    hfuzz_qemu_setup_point = strtol(opt_setup, 0, 0);
+    hfuzz_qemu_setup_point = strtol(opt_init, 0, 0);
     if(errno == ERANGE) {
-        printf("parsing setup location failed\n");
+        printf("parsing init location failed\n");
         return -1;
     }
 
-    const char * opt_start = qemu_opt_get(opts, "start");
+    opt_start = qemu_opt_get(opts, "start");
     if (opt_start == NULL) {
         printf("fuzzer start missing!\n");
         return -1;
     }
-    hfuzz_qemu_entry_point = strtol(opt_start, 0, 0);
+    hfuzz_qemu_start_code = strtol(opt_start, 0, 0);
     if(errno == ERANGE) {
         printf("parsing start location failed\n");
         return -1;
     }
 
-    char * opt_end = (char *) qemu_opt_get(opts, "end");
+    opt_end = qemu_opt_get(opts, "end");
     if (opt_end == NULL) {
         printf("fuzzer end missing!\n");
         return -1;
     }
-
-    opt_end = strtok(opt_end, "+");
-    int i;
-    for (i = 0; i < MAX_EXIT_POINTS && opt_end != NULL; i++) {
-      hfuzz_qemu_exit_points[i] = strtol(opt_end, 0, 0);
-      if(errno == ERANGE) {
-          printf("parsing end location failed\n");
-          return -1;
-      }
-      opt_end = strtok(NULL, "+");
-    }
-
-    hfuzz_qemu_n_exit_points = i;
-    if (hfuzz_qemu_n_exit_points == 0) {
-        printf("at least one exit point required\n");
+    hfuzz_qemu_end_code = strtol(opt_end, 0, 0);
+    if(errno == ERANGE) {
+        printf("parsing start location failed\n");
         return -1;
     }
 

@@ -35,8 +35,8 @@ extern size_t hfuzz_qemu_n_exit_points;
 extern char *hfuzz_dump_file;
 extern char *hfuzz_regs_file;
 
-extern const target_ulong hfuzz_qemu_start_code;
-extern const target_ulong hfuzz_qemu_end_code;
+extern target_ulong hfuzz_qemu_start_code;
+extern target_ulong hfuzz_qemu_end_code;
 
 
 extern bool childProcess;

@@ -277,7 +277,7 @@ STEXI
 ETEXI
 
 DEF("whitebox", HAS_ARG, QEMU_OPTION_whitebox,
-    "setup=x,start=x,end=x", QEMU_ARCH_ALL)
+    "init=x,start=x,end=x", QEMU_ARCH_ALL)
 STEXI
 ETEXI
 

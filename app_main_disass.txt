@@ -1,0 +1,41 @@
+Dump of assembler code for function app_main:
+   0x400d6c60 <+0>:	entry	a1, 48
+   0x400d6c63 <+3>:	call8	0x400d9000 <nvs_flash_init()>
+   0x400d6c66 <+6>:	beqz	a10, 0x400d6c78 <app_main+24>
+   0x400d6c69 <+9>:	l32r	a14, 0x400d0630 <_stext+1552>
+   0x400d6c6c <+12>:	l32r	a13, 0x400d0634 <_stext+1556>
+   0x400d6c6f <+15>:	movi	a12, 209
+   0x400d6c72 <+18>:	l32r	a11, 0x400d0638 <_stext+1560>
+   0x400d6c75 <+21>:	call8	0x40085c50 <_esp_error_check_failed>
+   0x400d6c78 <+24>:	call8	0x400f05b4 <esp_netif_init>
+   0x400d6c7b <+27>:	beqz	a10, 0x400d6c8d <app_main+45>
+   0x400d6c7e <+30>:	l32r	a14, 0x400d063c <_stext+1564>
+   0x400d6c81 <+33>:	l32r	a13, 0x400d0634 <_stext+1556>
+   0x400d6c84 <+36>:	movi	a12, 210
+   0x400d6c87 <+39>:	l32r	a11, 0x400d0638 <_stext+1560>
+   0x400d6c8a <+42>:	call8	0x40085c50 <_esp_error_check_failed>
+   0x400d6c8d <+45>:	call8	0x40101048 <esp_event_loop_create_default>
+   0x400d6c90 <+48>:	beqz	a10, 0x400d6ca2 <app_main+66>
+   0x400d6c93 <+51>:	l32r	a14, 0x400d0640 <_stext+1568>
+   0x400d6c96 <+54>:	l32r	a13, 0x400d0634 <_stext+1556>
+   0x400d6c99 <+57>:	movi	a12, 211
+   0x400d6c9c <+60>:	l32r	a11, 0x400d0638 <_stext+1560>
+   0x400d6c9f <+63>:	call8	0x40085c50 <_esp_error_check_failed>
+   0x400d6ca2 <+66>:	call8	0x400d6dc4 <example_connect>
+   0x400d6ca5 <+69>:	beqz	a10, 0x400d6cb7 <app_main+87>
+   0x400d6ca8 <+72>:	l32r	a14, 0x400d0644 <_stext+1572>
+   0x400d6cab <+75>:	l32r	a13, 0x400d0634 <_stext+1556>
+   0x400d6cae <+78>:	movi	a12, 217
+   0x400d6cb1 <+81>:	l32r	a11, 0x400d0638 <_stext+1560>
+   0x400d6cb4 <+84>:	call8	0x40085c50 <_esp_error_check_failed>
+   0x400d6cb7 <+87>:	l32r	a8, 0x400d0350 <_stext+816>
+   0x400d6cba <+90>:	s32i.n	a8, a1, 0
+   0x400d6cbc <+92>:	movi.n	a15, 0
+   0x400d6cbe <+94>:	movi.n	a14, 5
+   0x400d6cc0 <+96>:	mov.n	a13, a15
+   0x400d6cc2 <+98>:	l32r	a12, 0x400d03a0 <_stext+896>
+   0x400d6cc5 <+101>:	l32r	a11, 0x400d0648 <_stext+1576>
+   0x400d6cc8 <+104>:	l32r	a10, 0x400d064c <_stext+1580>
+   0x400d6ccb <+107>:	call8	0x40086f08 <xTaskCreatePinnedToCore>
+   0x400d6cce <+110>:	retw.n
+End of assembler dump.

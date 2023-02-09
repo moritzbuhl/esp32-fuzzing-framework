@@ -1,0 +1,38 @@
+Dump of assembler code for function main_task:
+   0x40102028 <+0>:	entry	a1, 48
+   0x4010202b <+3>:	l32r	a8, 0x400d0058 <_stext+56>
+   0x4010202e <+6>:	memw
+   0x40102031 <+9>:	l32i.n	a8, a8, 0
+   0x40102033 <+11>:	memw
+   0x40102036 <+14>:	s32i.n	a8, a1, 12
+   0x40102038 <+16>:	call8	0x400d32cc <heap_caps_enable_nonos_stack_heaps>
+   0x4010203b <+19>:	movi.n	a8, 0
+   0x4010203d <+21>:	s32i.n	a8, a1, 0
+   0x4010203f <+23>:	s32i.n	a8, a1, 4
+   0x40102041 <+25>:	s32i.n	a8, a1, 8
+   0x40102043 <+27>:	l32r	a8, 0x400d1f40 <_stext+7968>
+   0x40102046 <+30>:	s32i.n	a8, a1, 0
+   0x40102048 <+32>:	movi.n	a8, 1
+   0x4010204a <+34>:	s32i.n	a8, a1, 4
+   0x4010204c <+36>:	or	a10, a1, a1
+   0x4010204f <+39>:	call8	0x400d8ac8 <esp_task_wdt_init>
+   0x40102052 <+42>:	beqz.n	a10, 0x40102066 <main_task+62>
+   0x40102054 <+44>:	l32r	a14, 0x400d1f44 <_stext+7972>
+   0x40102057 <+47>:	l32r	a13, 0x400d1f48 <_stext+7976>
+   0x4010205a <+50>:	movi	a12, 128
+   0x4010205d <+53>:	l32r	a11, 0x400d1f4c <_stext+7980>
+   0x40102060 <+56>:	l32r	a8, 0x400d1f50 <_stext+7984>
+   0x40102063 <+59>:	callx8	a8
+   0x40102066 <+62>:	call8	0x400d6c60 <app_main>
+   0x40102069 <+65>:	movi.n	a10, 0
+   0x4010206b <+67>:	l32r	a8, 0x400d1f54 <_stext+7988>
+   0x4010206e <+70>:	callx8	a8
+   0x40102071 <+73>:	memw
+   0x40102074 <+76>:	l32i.n	a9, a1, 12
+   0x40102076 <+78>:	l32r	a8, 0x400d0058 <_stext+56>
+   0x40102079 <+81>:	memw
+   0x4010207c <+84>:	l32i.n	a8, a8, 0
+   0x4010207e <+86>:	beq	a9, a8, 0x40102084 <main_task+92>
+   0x40102081 <+89>:	call8	0x400d22d0 <__stack_chk_fail>
+   0x40102084 <+92>:	retw.n
+End of assembler dump.

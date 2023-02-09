@@ -1,0 +1,173 @@
+Dump of assembler code for function tcp_server_task:
+   0x400d6a9c <+0>:	entry	a1, 224
+   0x400d6a9f <+3>:	l32r	a2, 0x400d0058 <_stext+56>
+   0x400d6aa2 <+6>:	memw
+   0x400d6aa5 <+9>:	l32i	a2, a2, 0
+   0x400d6aa8 <+12>:	memw
+   0x400d6aab <+15>:	s32i	a2, a1, 188
+   0x400d6aae <+18>:	movi	a2, 0
+   0x400d6ab1 <+21>:	s32i.n	a2, a1, 20
+   0x400d6ab3 <+23>:	movi.n	a3, 2
+   0x400d6ab5 <+25>:	s8i	a3, a1, 17
+   0x400d6ab8 <+28>:	l32r	a3, 0x400d0608 <_stext+1512>
+   0x400d6abb <+31>:	s16i	a3, a1, 18
+   0x400d6abe <+34>:	movi	a12, 127
+   0x400d6ac1 <+37>:	movi	a11, -132
+   0x400d6ac4 <+40>:	movi	a4, 192
+   0x400d6ac7 <+43>:	add.n	a4, a4, a1
+   0x400d6ac9 <+45>:	add.n	a11, a4, a11
+   0x400d6acb <+47>:	addi	a10, a1, 20
+   0x400d6ace <+50>:	call8	0x400e7d40 <ip4addr_ntoa_r>
+   0x400d6ad1 <+53>:	mov.n	a12, a2
+   0x400d6ad3 <+55>:	movi.n	a11, 1
+   0x400d6ad5 <+57>:	movi.n	a10, 2
+   0x400d6ad7 <+59>:	call8	0x400dc1c0 <lwip_socket>
+   0x400d6ada <+62>:	mov.n	a3, a10
+   0x400d6adc <+64>:	bge	a10, a2, 0x400d6b00 <tcp_server_task+100>
+   0x400d6adf <+67>:	call8	0x4008a6c0 <esp_log_timestamp>
+   0x400d6ae2 <+70>:	mov.n	a2, a10
+   0x400d6ae4 <+72>:	call8	0x400f5ae0 <__errno>
+   0x400d6ae7 <+75>:	l32r	a11, 0x400d05f4 <_stext+1492>
+   0x400d6aea <+78>:	l32i.n	a15, a10, 0
+   0x400d6aec <+80>:	mov.n	a14, a11
+   0x400d6aee <+82>:	mov.n	a13, a2
+   0x400d6af0 <+84>:	l32r	a12, 0x400d060c <_stext+1516>
+   0x400d6af3 <+87>:	movi.n	a10, 1
+   0x400d6af5 <+89>:	call8	0x4008a604 <esp_log_write>
+   0x400d6af8 <+92>:	movi.n	a10, 0
+   0x400d6afa <+94>:	call8	0x400877c4 <vTaskDelete>
+   0x400d6afd <+97>:	j	0x400d6c48 <tcp_server_task+428>
+   0x400d6b00 <+100>:	call8	0x4008a6c0 <esp_log_timestamp>
+   0x400d6b03 <+103>:	l32r	a11, 0x400d05f4 <_stext+1492>
+   0x400d6b06 <+106>:	or	a14, a11, a11
+   0x400d6b09 <+109>:	or	a13, a10, a10
+   0x400d6b0c <+112>:	l32r	a12, 0x400d0610 <_stext+1520>
+   0x400d6b0f <+115>:	movi.n	a10, 3
+   0x400d6b11 <+117>:	call8	0x4008a604 <esp_log_write>
+   0x400d6b14 <+120>:	movi.n	a12, 16
+   0x400d6b16 <+122>:	movi	a11, -176
+   0x400d6b19 <+125>:	movi	a4, 192
+   0x400d6b1c <+128>:	add.n	a4, a4, a1
+   0x400d6b1e <+130>:	add.n	a11, a4, a11
+   0x400d6b20 <+132>:	mov.n	a10, a3
+   0x400d6b22 <+134>:	call8	0x400dbc58 <lwip_bind>
+   0x400d6b25 <+137>:	beqz.n	a10, 0x400d6b44 <tcp_server_task+168>
+   0x400d6b27 <+139>:	call8	0x4008a6c0 <esp_log_timestamp>
+   0x400d6b2a <+142>:	mov.n	a2, a10
+   0x400d6b2c <+144>:	call8	0x400f5ae0 <__errno>
+   0x400d6b2f <+147>:	l32r	a11, 0x400d05f4 <_stext+1492>
+   0x400d6b32 <+150>:	l32i.n	a15, a10, 0
+   0x400d6b34 <+152>:	mov.n	a14, a11
+   0x400d6b36 <+154>:	mov.n	a13, a2
+   0x400d6b38 <+156>:	l32r	a12, 0x400d0614 <_stext+1524>
+   0x400d6b3b <+159>:	movi.n	a10, 1
+   0x400d6b3d <+161>:	call8	0x4008a604 <esp_log_write>
+   0x400d6b40 <+164>:	j	0x400d6c39 <tcp_server_task+413>
+   0x400d6b43 <+167>:	lsi	f0, a5, 0x2dc
+   0x400d6b46 <+170>:	lsi	f11, a1, 0x2ac
+   0x400d6b49 <+173>:	bgei	a2, 0x100, 0x400d6aed <tcp_server_task+81>
+   0x400d6b4c <+176>:	f64cmpl	a11, a0, a5
+   0x400d6b4f <+179>:	add.s	f13, f13, f2
+   0x400d6b52 <+182>:	l32r	a12, 0x400d0618 <_stext+1528>
+   0x400d6b55 <+185>:	movi.n	a10, 3
+   0x400d6b57 <+187>:	call8	0x4008a604 <esp_log_write>
+   0x400d6b5a <+190>:	movi.n	a11, 1
+   0x400d6b5c <+192>:	mov.n	a10, a3
+   0x400d6b5e <+194>:	call8	0x400dbdec <lwip_listen>
+   0x400d6b61 <+197>:	beqz.n	a10, 0x400d6b81 <tcp_server_task+229>
+   0x400d6b63 <+199>:	call8	0x4008a6c0 <esp_log_timestamp>
+   0x400d6b66 <+202>:	mov.n	a2, a10
+   0x400d6b68 <+204>:	call8	0x400f5ae0 <__errno>
+   0x400d6b6b <+207>:	l32r	a11, 0x400d05f4 <_stext+1492>
+   0x400d6b6e <+210>:	l32i.n	a15, a10, 0
+   0x400d6b70 <+212>:	mov.n	a14, a11
+   0x400d6b72 <+214>:	mov.n	a13, a2
+   0x400d6b74 <+216>:	l32r	a12, 0x400d061c <_stext+1532>
+   0x400d6b77 <+219>:	movi.n	a10, 1
+   0x400d6b79 <+221>:	call8	0x4008a604 <esp_log_write>
+   0x400d6b7c <+224>:	j	0x400d6c39 <tcp_server_task+413>
+   0x400d6b7f <+227>:	extui	a0, a0, 16, 15
+   0x400d6b82 <+230>:	lsi	f11, a3, 0x2c4
+   0x400d6b85 <+233>:	beqz.n	a6, 0x400d6ba7 <tcp_server_task+267>
+   0x400d6b87 <+235>:	or	a14, a11, a11
+   0x400d6b8a <+238>:	or	a13, a10, a10
+   0x400d6b8d <+241>:	l32r	a12, 0x400d0620 <_stext+1536>
+   0x400d6b90 <+244>:	movi.n	a10, 3
+   0x400d6b92 <+246>:	call8	0x4008a604 <esp_log_write>
+   0x400d6b95 <+249>:	movi.n	a2, 28
+   0x400d6b97 <+251>:	s32i.n	a2, a1, 12
+   0x400d6b99 <+253>:	movi	a12, -180
+   0x400d6b9c <+256>:	movi	a2, 192
+   0x400d6b9f <+259>:	add.n	a2, a2, a1
+   0x400d6ba1 <+261>:	add.n	a12, a2, a12
+   0x400d6ba3 <+263>:	movi	a11, -160
+   0x400d6ba6 <+266>:	add.n	a11, a2, a11
+   0x400d6ba8 <+268>:	or	a10, a3, a3
+   0x400d6bab <+271>:	call8	0x400dba68 <lwip_accept>
+   0x400d6bae <+274>:	mov.n	a2, a10
+   0x400d6bb0 <+276>:	bgez	a10, 0x400d6bd0 <tcp_server_task+308>
+   0x400d6bb3 <+279>:	call8	0x4008a6c0 <esp_log_timestamp>
+   0x400d6bb6 <+282>:	mov.n	a2, a10
+   0x400d6bb8 <+284>:	call8	0x400f5ae0 <__errno>
+   0x400d6bbb <+287>:	l32r	a11, 0x400d05f4 <_stext+1492>
+   0x400d6bbe <+290>:	l32i.n	a15, a10, 0
+   0x400d6bc0 <+292>:	mov.n	a14, a11
+   0x400d6bc2 <+294>:	mov.n	a13, a2
+   0x400d6bc4 <+296>:	l32r	a12, 0x400d0624 <_stext+1540>
+   0x400d6bc7 <+299>:	movi.n	a10, 1
+   0x400d6bc9 <+301>:	call8	0x4008a604 <esp_log_write>
+   0x400d6bcc <+304>:	j	0x400d6c39 <tcp_server_task+413>
+   0x400d6bcf <+307>:	slli	a8, a2, 32
+   0x400d6bd2 <+310>:	l32r	a2, 0x400a0d6c
+   0x400d6bd5 <+313>:	call4	0x400777f8
+   0x400d6bd8 <+316>:	.byte 0x7f
+   0x400d6bd9 <+317>:	movi	a11, -132
+   0x400d6bdc <+320>:	movi	a4, 192
+   0x400d6bdf <+323>:	add.n	a4, a4, a1
+   0x400d6be1 <+325>:	add.n	a11, a4, a11
+   0x400d6be3 <+327>:	addi	a10, a1, 36
+   0x400d6be6 <+330>:	call8	0x400e7d40 <ip4addr_ntoa_r>
+   0x400d6be9 <+333>:	j	0x400d6c05 <tcp_server_task+361>
+   0x400d6bec <+336>:	bnei	a8, 10, 0x400d6c05 <tcp_server_task+361>
+   0x400d6bef <+339>:	movi	a12, 127
+   0x400d6bf2 <+342>:	movi	a11, -132
+   0x400d6bf5 <+345>:	movi	a4, 192
+   0x400d6bf8 <+348>:	add.n	a4, a4, a1
+   0x400d6bfa <+350>:	add.n	a11, a4, a11
+   0x400d6bfc <+352>:	addi	a10, a1, 40
+   0x400d6bff <+355>:	or	a1, a1, a1
+   0x400d6c02 <+358>:	call8	0x400e9194 <ip6addr_ntoa_r>
+   0x400d6c05 <+361>:	call8	0x4008a6c0 <esp_log_timestamp>
+   0x400d6c08 <+364>:	l32r	a11, 0x400d05f4 <_stext+1492>
+   0x400d6c0b <+367>:	movi	a15, -132
+   0x400d6c0e <+370>:	movi	a4, 192
+   0x400d6c11 <+373>:	add.n	a4, a4, a1
+   0x400d6c13 <+375>:	add.n	a15, a4, a15
+   0x400d6c15 <+377>:	mov.n	a14, a11
+   0x400d6c17 <+379>:	or	a13, a10, a10
+   0x400d6c1a <+382>:	l32r	a12, 0x400d0628 <_stext+1544>
+   0x400d6c1d <+385>:	movi.n	a10, 3
+   0x400d6c1f <+387>:	call8	0x4008a604 <esp_log_write>
+   0x400d6c22 <+390>:	mov.n	a10, a2
+   0x400d6c24 <+392>:	call8	0x400d69c0 <do_retransmit>
+   0x400d6c27 <+395>:	movi.n	a11, 0
+   0x400d6c29 <+397>:	mov.n	a10, a2
+   0x400d6c2b <+399>:	call8	0x400dc65c <lwip_shutdown>
+   0x400d6c2e <+402>:	mov.n	a10, a2
+   0x400d6c30 <+404>:	l32r	a8, 0x400d062c <_stext+1548>
+   0x400d6c33 <+407>:	callx8	a8
+   0x400d6c36 <+410>:	j	0x400d6b81 <tcp_server_task+229>
+   0x400d6c39 <+413>:	or	a10, a3, a3
+   0x400d6c3c <+416>:	l32r	a8, 0x400d062c <_stext+1548>
+   0x400d6c3f <+419>:	callx8	a8
+   0x400d6c42 <+422>:	movi	a10, 0
+   0x400d6c45 <+425>:	call8	0x400877c4 <vTaskDelete>
+   0x400d6c48 <+428>:	memw
+   0x400d6c4b <+431>:	l32i	a3, a1, 188
+   0x400d6c4e <+434>:	l32r	a2, 0x400d0058 <_stext+56>
+   0x400d6c51 <+437>:	memw
+   0x400d6c54 <+440>:	l32i.n	a2, a2, 0
+   0x400d6c56 <+442>:	beq	a3, a2, 0x400d6c5c <tcp_server_task+448>
+   0x400d6c59 <+445>:	call8	0x400d22d0 <__stack_chk_fail>
+   0x400d6c5c <+448>:	retw.n
+End of assembler dump.

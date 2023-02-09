@@ -1,0 +1,4 @@
+strcmp$1 = (<variable (not text or data), no debug info> *) 0x40001274
+strncmp$2 = (<variable (not text or data), no debug info> *) 0x4000c5f4
+strcasecmp$3 = (<variable (not text or data), no debug info> *) 0x400011cc
+strncasecmp$4 = (<variable (not text or data), no debug info> *) 0x40001550
